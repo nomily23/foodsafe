@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodSafe - הצלת מזון לקהילה</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 font-sans">
+
+    <!-- Navbar -->
+    <nav class="bg-emerald-600 text-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold flex items-center gap-2">
+                 FoodSafe <span class="text-xs bg-emerald-700 px-2 py-1 rounded">קהילה וצרכנים</span>
+            </h1>
+            <div class="flex items-center gap-4">
+                <!-- כפתור חזרה לממשק ניהול סופר -->
+                <a href="index.html" class="text-xs bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1.5 rounded-lg transition font-medium shadow-sm">
+                    חזרה לממשק ניהול סופר
+                </a>
+                <span class="text-sm bg-emerald-800 px-3 py-1 rounded-full"> גבעתיים והסביבה</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        
+        <!-- Header & Search Info -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mb-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                     מוצרים קרובים לתפוגה להצלה בקרבתך
+                </h2>
+                <p class="text-slate-500 text-sm mt-1">קנו במחירים מוזלים או קבלו בחינם מוצרים מעולים שעוזרים למנוע בזבוז מזון!</p>
+            </div>
+            <button onclick="loadCustomerProducts()" class="text-sm bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded-xl transition font-medium">
+                רענן מוצרים זמינים
+            </button>
+        </div>
+
+        <!-- Filter Buttons Bar -->
+        <div class="flex flex-wrap gap-2 mb-6 text-sm">
+            <button onclick="filterCustomerProducts('all')" id="filter-all" class="bg-emerald-600 text-white px-4 py-2 rounded-xl transition font-medium">הצג הכל</button>
+            <button onclick="filterCustomerProducts('free')" id="filter-free" class="bg-slate-100 text-slate-700 hover:bg-slate-200 px-4 py-2 rounded-xl transition"> חינם בלבד (0 ₪)</button>
+            <button onclick="filterCustomerProducts('מוצרי חלב')" id="filter-מוצרי חלב" class="bg-slate-100 text-slate-700 hover:bg-slate-200 px-4 py-2 rounded-xl transition">מוצרי חלב</button>
+            <button onclick="filterCustomerProducts('ירקות ופירות')" id="filter-ירקות ופירות" class="bg-slate-100 text-slate-700 hover:bg-slate-200 px-4 py-2 rounded-xl transition">ירקות ופירות</button>
+            <button onclick="filterCustomerProducts('מאפים ולחם')" id="filter-מאפים ולחם" class="bg-slate-100 text-slate-700 hover:bg-slate-200 px-4 py-2 rounded-xl transition">מאפים ולחם</button>
+            <button onclick="filterCustomerProducts('בשר ודגים')" id="filter-בשר ודגים" class="bg-slate-100 text-slate-700 hover:bg-slate-200 px-4 py-2 rounded-xl transition">בשר ודגים</button>
+            <button onclick="filterCustomerProducts('מוצרים יבשים')" id="filter-מוצרים יבשים" class="bg-slate-100 text-slate-700 hover:bg-slate-200 px-4 py-2 rounded-xl transition">מוצרים יבשים</button>
+        </div>
+
+        <!-- Products Grid Container -->
+        <div id="customer-products-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <p class="text-slate-500 text-center col-span-3 py-12">טוען מוצרים זמינים להצלה...</p>
+        </div>
+
+    </main>
+
+    <script>
+        const API_URL = 'http://localhost:5002/api/merchants';
+        const MERCHANT_ID = 'super_givatayim';
+        let allProducts = [];
+        let currentFilter = 'all';
+
+        async function loadCustomerProducts() {
+            const container = document.getElementById('customer-products-grid');
+            container.innerHTML = '<p class="text-slate-500 text-center col-span-3 py-12">טוען מוצרים זמינים להצלה...</p>';
+
+            try {
+                const response = await fetch(`${API_URL}/${MERCHANT_ID}/products`);
+                allProducts = await response.json();
+                renderCustomerGrid(allProducts);
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = '<p class="text-red-500 text-center col-span-3 py-12">שגיאה בחיבור לשרת. ודאי שהשרת ב-Docker רץ.</p>';
+            }
+        }
+
+        function renderCustomerGrid(products) {
+            const container = document.getElementById('customer-products-grid');
+
+            let filtered = products.filter(p => {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const expiry = new Date(p.expiryDate);
+                expiry.setHours(0, 0, 0, 0);
+                
+                if (expiry < today || p.quantity <= 0) return false;
+
+                if (currentFilter === 'all') return true;
+                if (currentFilter === 'free') return p.discountedPrice === 0;
+                return p.category === currentFilter;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<p class="text-slate-400 text-center col-span-3 py-12 bg-white rounded-2xl shadow-sm">אין כרגע מוצרים זמינים להצלה בקטגוריה זו.</p>';
+                return;
+            }
+
+            let html = '';
+            filtered.forEach(p => {
+                const expiryFormatted = new Date(p.expiryDate).toLocaleDateString('he-IL');
+                
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const expiry = new Date(p.expiryDate);
+                expiry.setHours(0, 0, 0, 0);
+                const diffDays = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
+
+                let badgeHtml = '';
+                if (diffDays === 0) {
+                    badgeHtml = '<span class="bg-red-100 text-red-700 text-xs px-2.5 py-1 rounded-full font-bold">פג תוקף היום!</span>';
+                } else if (diffDays <= 3) {
+                    badgeHtml = `<span class="bg-amber-100 text-amber-800 text-xs px-2.5 py-1 rounded-full font-bold"> עוד ${diffDays} ימים</span>`;
+                }
+
+                html += `
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition">
+                        <div>
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg">${p.category}</span>
+                                ${badgeHtml}
+                            </div>
+                            <h3 class="text-lg font-bold text-slate-800 mb-1">${p.title}</h3>
+                            <p class="text-xs text-slate-400 mb-4">סופר מרכז גבעתיים</p>
+                            
+                            <div class="flex items-baseline gap-2 mb-4">
+                                <span class="text-2xl font-black text-emerald-600">₪${p.discountedPrice}</span>
+                                <span class="text-sm text-slate-400 line-through">₪${p.originalPrice}</span>
+                                ${p.discountedPrice === 0 ? '<span class="text-xs bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded">חינם לגמרי!</span>' : ''}
+                            </div>
+
+                            <div class="text-sm text-slate-600 space-y-1 border-t pt-3 mb-4">
+                                <p> תאריך תפוגה: <span class="font-medium text-red-500">${expiryFormatted}</span></p>
+                                <p> כמות זמינה: <span class="font-medium text-slate-800">${p.quantity} יחידות</span></p>
+                            </div>
+                        </div>
+
+                        <button onclick="reserveProduct('${p._id}', '${p.title}')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 rounded-xl transition text-sm shadow-md shadow-emerald-600/20">
+                            שמור לי להצלה (Click & Collect)
+                        </button>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function filterCustomerProducts(category) {
+            currentFilter = category;
+            
+            document.querySelectorAll('.flex.flex-wrap.gap-2.mb-6 button').forEach(btn => {
+                btn.className = "bg-slate-100 text-slate-700 hover:bg-slate-200 px-4 py-2 rounded-xl transition";
+            });
+            
+            const activeBtn = document.getElementById(`filter-${category}`);
+            if (activeBtn) {
+                activeBtn.className = "bg-emerald-600 text-white px-4 py-2 rounded-xl transition font-medium";
+            }
+
+            renderCustomerGrid(allProducts);
+        }
+
+        function reserveProduct(productId, title) {
+            alert(`המוצר "${title}" הוזמן בהצלחה! קוד איסוף נוצר עבורך. יש להגיע לקופה בסופר ולאסוף אותו בהצגת הקוד.`);
+        }
+
+        loadCustomerProducts();
+    </script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: foodsafe-backend-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: foodsafe-backend
+  template:
+    metadata:
+      labels:
+        app: foodsafe-backend
+    spec:
+      containers:
+      - name: foodsafe-backend
+        image: foodsafe-server:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5000
+        env:
+        - name: PORT
+          value: "5000"
+        - name: MONGO_URI
+          value: "mongodb+srv://nomily23:<password>@cluster0.0qlfabj.mongodb.net/foodsafe"

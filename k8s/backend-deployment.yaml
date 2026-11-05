@@ -11,7 +11,7 @@ spec:
     metadata:
       labels:
         app: foodsafe-backend
-    spec:
+  spec:
       containers:
       - name: foodsafe-backend
         image: foodsafe-server:latest

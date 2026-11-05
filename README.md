@@ -1,10 +1,12 @@
-# 🥗 FoodSafe - Smart Supermarket Food Rescue Platform
+#  FoodSafe - Smart Supermarket Food Rescue Platform
 
 FoodSafe is a full-stack web application designed to manage and rescue surplus supermarket food, connecting businesses and communities efficiently to reduce food waste.
 
 ---
 
-## 📸 Screenshots
+## <img width="1672" height="836" alt="merchant-view png" src="https://github.com/user-attachments/assets/f91c1f60-cd44-4e3b-a35c-37ae6513709b" />
+<img width="1710" height="870" alt="customer-view png" src="https://github.com/user-attachments/assets/2540e0d0-e20f-4a13-9ccc-3a3fa99934ef" />
+ Screenshots
 *(מומלץ להעלות את התמונות לתיקיית `assets/` בפרויקט או לגרור אותן ל-Issue בגיטהאב כדי לקבל קישור זמין)*
 
 | Merchant Dashboard | Customer View |
@@ -13,7 +15,7 @@ FoodSafe is a full-stack web application designed to manage and rescue surplus s
 
 ---
 
-## 🚀 Tech Stack
+##  Tech Stack
 
 ### Frontend & UI
 * **HTML5 / CSS3 / Tailwind CSS** - Modern, responsive, and clean green-themed user interface (`#40ad45`).
@@ -29,7 +31,7 @@ FoodSafe is a full-stack web application designed to manage and rescue surplus s
 
 ---
 
-## 📂 Project Structure
+##  Project Structure
 
 ```text
 foodsafe/
@@ -44,12 +46,14 @@ foodsafe/
 │   └── backend-service.yaml
 └── .gitignore              # Security and exclusion rules
 
+
+
 Security Practices
 Environment Protection: Sensitive credentials (such as MongoDB connection strings) are strictly managed via local .env variables and excluded from version control using .gitignore and .dockerignore.
 
 Kubernetes Security: Deployment manifests utilize secure environment variable placeholders to ensure public repository safety.
 
-🛠️ Getting Started Locally
+ Getting Started Locally
 1.Clone the repository:
 
 git clone [https://github.com/nomily23/foodsafe.git](https://github.com/nomily23/foodsafe.git)

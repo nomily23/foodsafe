@@ -5,7 +5,6 @@ FoodSafe is a full-stack web application designed to manage and rescue surplus s
 ---
 
 ##  Screenshots
-*(מומלץ להעלות את התמונות לתיקיית `assets/` בפרויקט או לגרור אותן ל-Issue בגיטהאב כדי לקבל קישור זמין)*
 
 | Merchant Dashboard | Customer View |
 | :---: | :---: |
